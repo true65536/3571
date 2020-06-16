@@ -1,4 +1,4 @@
-# 2207 (Lucas 2048)
+# 3571 (Lucas 2048)
 
 This game is a modification of Gabriele Cirulli's well-known [2048](http://gabrielecirulli.github.io/2048/) game, using the Lucas Sequence.
 
