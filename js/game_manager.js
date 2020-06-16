@@ -43,7 +43,9 @@ GameManager.prototype.setup = function () {
   this.keepPlaying = false;
 
   // Add the initial tiles
+  //console.log('test');
   this.addStartTiles();
+  //console.log('Added start tiles');
 
   // Update the actuator
   this.actuate();
@@ -59,7 +61,8 @@ GameManager.prototype.addStartTiles = function () {
 // Adds a tile in a random position
 GameManager.prototype.addRandomTile = function () {
   if (this.grid.cellsAvailable()) {
-    var value = Math.random() < 0.8 ? 1 : 2;
+    var rand = Math.random();
+    var value = rand < 0.80 ? 1 : 2;
     var tile = new Tile(this.grid.randomAvailableCell(), value);
 
     this.grid.insertTile(tile);
@@ -99,6 +102,23 @@ GameManager.prototype.moveTile = function (tile, cell) {
   tile.updatePosition(cell);
 };
 
+// Tests if two values sum to a Lucas number
+GameManager.prototype.testFib = function(val1, val2) {
+  var sum = val1 + val2;
+  var fib = [2,1]
+
+  while (sum > fib[fib.length-1]) {
+    fib.push(fib[fib.length-1] + fib[fib.length-2])
+  }
+  
+  for (var i = 0; i<fib.length && sum>=fib[i]; i++) {
+    if (sum === fib[i]) {
+      return true;
+    }
+  }
+  return false;
+};
+
 // Move tiles on the grid in the specified direction
 GameManager.prototype.move = function (direction) {
   // 0: up, 1: right, 2:down, 3: left
@@ -126,11 +146,8 @@ GameManager.prototype.move = function (direction) {
         var next      = self.grid.cellContent(positions.next);
 
         // Only one merger per row traversal?
-        if (next && !next.mergedFrom
-			&& isFibo(tile.value) && isFibo(next.value)
-			&& isFibo(tile.value+next.value)
-			) {
-          var merged = new Tile(positions.next, tile.value+next.value);
+        if (next && self.testFib(next.value, tile.value) && !next.mergedFrom) {
+          var merged = new Tile(positions.next, tile.value + next.value);
           merged.mergedFrom = [tile, next];
 
           self.grid.insertTile(merged);
@@ -143,9 +160,8 @@ GameManager.prototype.move = function (direction) {
           self.score += merged.value;
 
           // The mighty 2048 tile
-          if (merged.value === 6765) self.won = true;
-        }
-		else {
+          if (merged.value === 3571) self.won = true;
+        } else {
           self.moveTile(tile, positions.farthest);
         }
 
@@ -233,7 +249,7 @@ GameManager.prototype.tileMatchesAvailable = function () {
 
           var other  = self.grid.cellContent(cell);
 
-          if (other && other.value === tile.value) {
+          if (other && self.testFib(other.value, tile.value)) {
             return true; // These two tiles can be merged
           }
         }
